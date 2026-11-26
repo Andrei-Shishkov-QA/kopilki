@@ -1,0 +1,37 @@
+/* Layout: one column, phone-first; top bar with sync state, tab row, stacked panels. Jars are the recurring motif.
+   Palettes: sea (base tokens, teal + amber), red (default, black + red), graphite (graphite + orange). */
+:root {
+  --bg: #f2f6f7; --surface: #ffffff; --ink: #0f2a33; --muted: #557079; --line: #d3dfe2; --accent: #0b6e8a; --accent-ink: #ffffff; --bank: #0b6e8a; --goals: #d9822b; --others: #7b4fa0; --wallet: #4d6670; --ok: #1e7a3c; --warn: #b26a00; --bad: #c62828; --tint: #e3eef1;
+  --display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --bg: #0b1a20; --surface: #12262e; --ink: #e8f2f4; --muted: #9db5bc; --line: #24414a; --accent: #3fb7d6; --accent-ink: #04161c; --bank: #3fb7d6; --goals: #f2a65a; --others: #b38ad6; --wallet: #a3bcc4; --ok: #5fcf86; --warn: #f0b04a; --bad: #ff7b72; --tint: #183239; color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+  --bg: #0b1a20; --surface: #12262e; --ink: #e8f2f4; --muted: #9db5bc; --line: #24414a; --accent: #3fb7d6; --accent-ink: #04161c; --bank: #3fb7d6; --goals: #f2a65a; --others: #b38ad6; --wallet: #a3bcc4; --ok: #5fcf86; --warn: #f0b04a; --bad: #ff7b72; --tint: #183239; color-scheme: dark;
+}
+:root[data-palette="red"] {
+  --bg: #f6f4f3; --surface: #ffffff; --ink: #141414; --muted: #5f5a58; --line: #ddd6d3; --accent: #c8102e; --accent-ink: #ffffff; --bank: #141414; --goals: #c8102e; --others: #9a6b00; --wallet: #5b5b5b; --ok: #1e7a3c; --warn: #b26a00; --bad: #c8102e; --tint: #efe9e7;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="red"]:not([data-theme="light"]) {
+  --bg: #0f0f10; --surface: #1a1a1b; --ink: #f2efee; --muted: #a9a3a1; --line: #2f2c2b; --accent: #ff3b4e; --accent-ink: #1a0004; --bank: #e8e3e1; --goals: #ff3b4e; --others: #e0a43a; --wallet: #a3a3a3; --ok: #5fcf86; --warn: #f0b04a; --bad: #ff5d6c; --tint: #232122; color-scheme: dark;
+}
+}
+:root[data-palette="red"][data-theme="dark"] {
+  --bg: #0f0f10; --surface: #1a1a1b; --ink: #f2efee; --muted: #a9a3a1; --line: #2f2c2b; --accent: #ff3b4e; --accent-ink: #1a0004; --bank: #e8e3e1; --goals: #ff3b4e; --others: #e0a43a; --wallet: #a3a3a3; --ok: #5fcf86; --warn: #f0b04a; --bad: #ff5d6c; --tint: #232122; color-scheme: dark;
+}
+:root[data-palette="graphite"] {
+  --bg: #f4f4f2; --surface: #ffffff; --ink: #1f2328; --muted: #5f656d; --line: #d9dbde; --accent: #e8590c; --accent-ink: #ffffff; --bank: #1f2328; --goals: #e8590c; --others: #6741d9; --wallet: #5c6670; --ok: #2b8a3e; --warn: #b26a00; --bad: #c92a2a; --tint: #ebecee;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="graphite"]:not([data-theme="light"]) {
+  --bg: #15171a; --surface: #1e2125; --ink: #eceef0; --muted: #a0a6ad; --line: #30353b; --accent: #ff7a2e; --accent-ink: #1a0a00; --bank: #d5d9de; --goals: #ff7a2e; --others: #9775fa; --wallet: #8f99a3; --ok: #69db7c; --warn: #ffc04d; --bad: #ff6b6b; --tint: #262a2f; color-scheme: dark;
+}
+}
+:root[data-palette="graphite"][data-theme="dark"] {
+  --bg: #15171a; --surface: #1e2125; --ink: #eceef0; --muted: #a0a6ad; --line: #30353b; --accent: #ff7a2e; --accent-ink: #1a0a00; --bank: #d5d9de; --goals: #ff7a2e; --others: #9775fa; --wallet: #8f99a3; --ok: #69db7c; --warn: #ffc04d; --bad: #ff6b6b; --tint: #262a2f; color-scheme: dark;
+}
