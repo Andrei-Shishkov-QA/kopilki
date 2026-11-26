@@ -6,8 +6,6 @@ import * as K from '../engine/index.js';
 import * as S from '../store/store.js';
 export { K, S };
 
-export const PIN = '9525';
-
 export const USER_KEY = 'kidbank.user';
 
 export const APP_VERSION = '1.0';

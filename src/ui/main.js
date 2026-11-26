@@ -12,7 +12,7 @@ store.subscribe((ev, st) => {
   setEvents(ev); setStatus(st); recompute();
   // не перерисовывать, пока человек печатает в поле — иначе сбивается ввод
   const f = document.activeElement;
-  if (f && (f.tagName === 'INPUT' || f.tagName === 'TEXTAREA') && f.closest('main')) return;
+  if (f && (f.tagName === 'INPUT' || f.tagName === 'TEXTAREA') && f.closest('main, form')) return;
   render();
 });
 

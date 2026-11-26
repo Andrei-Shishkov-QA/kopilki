@@ -1,7 +1,7 @@
 // Вкладка «Ещё»: цвета и вид, демо, резервные копии.
 import { APP_VERSION, PALETTES, S, add, applyPalette, currentPalette, events, go, state, store, user, who } from './core.js';
 import { demoPanel } from './docs.js';
-import { h, sheet, toast } from './dom.js';
+import { confirmBtn, h, sheet, toast } from './dom.js';
 import { jarStylePicker } from './jars.js';
 import { TYPE } from './labels.js';
 import { render } from './render.js';
@@ -56,8 +56,6 @@ export function importSheet(file) {
 
 export function backupView() {
   const file = h('input', { id: 'import-file', type: 'file', accept: '.json,application/json', hidden: true, onchange: e => { const f = e.target.files[0]; if (f) importSheet(f); e.target.value = ''; } });
-  const isLocal = store.mode === 'local';
-  const noDb = store.mode === 'nodb';
   const current = currentPalette();
   return h('main', { class: 'wrap' },
     h('div', { class: 'grid2' }, h('button', { type: 'button', onclick: () => go('rules') }, 'Правила системы'), h('button', { type: 'button', onclick: () => go('kid') }, 'Экран Сергея')),
@@ -85,15 +83,7 @@ export function backupView() {
       h('p', {}, 'Добавляет из файла записи, которых нет в журнале. Ничего не удаляет.'),
       h('div', { class: 'row' }, h('button', { type: 'button', onclick: () => file.click() }, 'Выбрать файл копии')), file),
     h('section', { class: 'panel' },
-      h('h2', {}, 'Если claude.ai недоступен'),
-      isLocal
-        ? h('p', {}, 'Сейчас приложение работает в аварийном режиме: записи хранятся только в этом браузере. Загрузите последнюю копию и сохраняйте новую после каждых итогов недели.')
-        : h('p', {}, 'Откройте на компьютере файл приложения kidbank.html, который прислал Claude, и загрузите последнюю копию. Приложение заработает на этом компьютере без интернета, но без телефонов.'),
-      noDb ? h('div', { class: 'stack' },
-        h('p', { class: 'small', style: 'color:var(--bad)' }, 'Общая база сейчас недоступна. Новые записи ждут на этом телефоне и отправятся, когда база появится.'),
-        h('button', { type: 'button', class: 'danger', onclick: () => sheet((box, close) => {
-          box.append(h('h2', {}, 'Аварийный режим на этом устройстве?'),
-            h('p', {}, 'Записи перестанут попадать в общую базу и будут храниться только здесь. Вернуться потом можно, загрузив копию в общую базу.'),
-            h('div', { class: 'row' }, h('button', { type: 'button', onclick: close }, 'Отмена'), h('button', { class: 'primary', type: 'button', onclick: () => { store.goLocal(); close(); } }, 'Включить')));
-        }) }, 'Перейти в аварийный режим')) : null));
+      h('h2', {}, 'Аккаунт'),
+      h('p', { class: 'small' }, 'Вошли как ' + (store.account || '—') + '. Без интернета приложение работает с копией на телефоне, записи отправятся сами.'),
+      confirmBtn('Выйти из аккаунта на этом телефоне', 'Точно выйти? Потом нужен будет пароль', () => store.logout(), 'ghost')));
 }

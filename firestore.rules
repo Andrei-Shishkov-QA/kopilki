@@ -1,0 +1,19 @@
+rules_version = '2';
+// Правила базы «Копилок»: читать и добавлять записи может только семейный аккаунт.
+// Записи журнала нельзя менять и удалять — исправления делаются новыми записями.
+// Скопировать целиком в Firebase → Firestore → Rules → Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function family() {
+      return request.auth != null
+        && request.auth.token.email in ['ПОЧТА_СЕМЬИ@example.com'];
+    }
+    match /ev/{id} {
+      allow read: if family();
+      allow create: if family() && request.resource.data.id == id;
+    }
+    match /arch/{id} {
+      allow read: if family();
+    }
+  }
+}
