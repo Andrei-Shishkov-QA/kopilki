@@ -2,7 +2,7 @@
 // Подставляется вместо vendor/firebase.js (tests/preview.py). Журнал берёт из localStorage 'fake.events'.
 const subs = [];
 const read = () => { try { return JSON.parse(localStorage.getItem('fake.events') || '[]'); } catch (e) { return []; } };
-const snap = name => ({ docs: name === 'ev' ? read().map(e => ({ id: e.id, data: () => e })) : [], metadata: { hasPendingWrites: false, fromCache: false } });
+const snap = (name, fromCache) => ({ docs: name === 'ev' ? read().map(e => ({ id: e.id, data: () => e })) : [], metadata: { hasPendingWrites: false, fromCache: !!fromCache } });
 export const initializeApp = () => ({});
 export const getAuth = () => ({});
 export const signInWithEmailAndPassword = async () => ({});
@@ -21,6 +21,9 @@ export const setDoc = async (ref, data) => {
 export const onSnapshot = (name, opts, cb) => {
   if (typeof opts === 'function') cb = opts;
   const s = { name, cb }; subs.push(s);
-  setTimeout(() => cb(snap(name)), 0);
+  // как настоящий Firestore с копией на телефоне: сначала ответ из копии, потом подтверждение сервера.
+  // Если данные не изменились, подтверждение приходит только с includeMetadataChanges.
+  setTimeout(() => cb(snap(name, true)), 0);
+  if (opts && opts.includeMetadataChanges) setTimeout(() => cb(snap(name, false)), 50);
   return () => subs.splice(subs.indexOf(s), 1);
 };
