@@ -1,12 +1,14 @@
-# Выкладка сайта. Собирает сразу все версии:
-#   ветка main  → …/kopilki/          (основная, для всех)
-#   ветка beta  → …/kopilki/beta/     (новое, для владельца)
-#   ветки release/X.Y.Z → …/kopilki/v/X.Y.Z/  (каждый выпуск навсегда, для отката)
-# и файл versions.json со списком выпусков.
-name: Тесты и публикация
+# Публикация сайта — после зелёных тестов любой ветки. Запускается от имени main
+# (так GitHub Pages разрешает выкладку) и собирает сразу все версии:
+#   ветка main            → …/kopilki/          (основная, для всех)
+#   ветка beta            → …/kopilki/beta/     (новое, для владельца)
+#   ветки release/X.Y.Z   → …/kopilki/v/X.Y.Z/  (каждый выпуск навсегда, для отката)
+# и versions.json со списком выпусков. Сборка — .github/build-site.sh.
+name: Публикация
 on:
-  push:
-    branches: [main, beta, 'release/**']
+  workflow_run:
+    workflows: [Тесты]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,16 +18,8 @@ concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm test
   deploy:
-    needs: test
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -33,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
       - name: Собрать все версии
         run: bash .github/build-site.sh
