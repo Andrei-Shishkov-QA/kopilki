@@ -8,10 +8,15 @@ export const DEFAULT_FAMILY = {
   currency: '֏',
 };
 
+// Имена, где при склонении выпадает или меняется буква.
+const ODD = { 'павел': ['Павла', 'Павлу', 'Павлом'], 'лев': ['Льва', 'Льву', 'Львом'], 'петр': ['Петра', 'Петру', 'Петром'], 'любовь': ['Любови', 'Любови', 'Любовью'] };
+
 /** Падежи имени — догадка для простых русских имён; в настройках можно поправить руками. */
 export function nameForms(name) {
   const n = String(name || '').trim();
   if (!n) return { name: '', gen: '', dat: '', ins: '' };
+  const odd = ODD[n.toLowerCase().replace('ё', 'е')];
+  if (odd) { const c = n[0]; const fix = s => c + s.slice(1); return { name: n, gen: fix(odd[0]), dat: fix(odd[1]), ins: fix(odd[2]) }; }
   const stem = n.slice(0, -1), last = n.slice(-1).toLowerCase();
   const hush = /[жшчщцгкх]$/i.test(stem);
   if (last === 'й') return { name: n, gen: stem + 'я', dat: stem + 'ю', ins: stem + 'ем' };

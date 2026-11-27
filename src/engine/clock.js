@@ -31,3 +31,18 @@ export function usualOffset(events) {
   for (const [o, k] of count) if (k > n) { best = o; n = k; }
   return best;
 }
+
+/** '+04:00' → 240 минут. */
+export function offsetMinutes(o) {
+  const m = /^([+-])(\d\d):(\d\d)$/.exec(String(o || ''));
+  return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : null;
+}
+
+/** Время ms в виде '2026-11-27T14:05:00+04:00' для пояса offset ('+04:00'). */
+export function isoAt(ms, offset) {
+  const min = offsetMinutes(offset);
+  if (min == null) return null;
+  const d = new Date(ms + min * 60000);
+  const p = n => String(n).padStart(2, '0');
+  return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) + 'T' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + offset;
+}

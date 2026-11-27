@@ -19,6 +19,7 @@ export function settingsBase() {
     rate: cfg.bank.monthlyRatePct, icap: cfg.bank.interestCap, lock: cfg.bank.lockSessions, minW: cfg.bank.minWithdraw,
     bonusWeek: cfg.bonus.perWeekPct, bonusMax: cfg.bonus.maxPct, topUp: cfg.topUpMaxPct,
     giftGoals: cfg.gift.goalsPct, giftWallet: cfg.gift.walletMax, walletCap: cfg.walletCap, monthlyCap: cfg.monthlyCap || 4000,
+    coinStep: cfg.coinStep, coinList: K.coinList(cfg).join(', '),
     bBank: K.bankTotal(state), bGoals: state.goals.cash, bOthers: state.others.cash, bWallet: state.wallet.cash,
   };
 }
@@ -28,7 +29,7 @@ export function settingsView() {
   const base = settingsBase();
   if (!admin) settingsDraft = null;
   const sd = settingsDraft || (settingsDraft = { ...base });
-  const dirty = () => Object.keys(base).filter(k => Number(sd[k]) !== Number(base[k])).concat(familyDirty() ? ['family'] : []);
+  const dirty = () => Object.keys(base).filter(k => String(sd[k]) !== String(base[k])).concat(familyDirty() ? ['family'] : []);
   const inputs = {};
   const num = (k, label, hint) => {
     const el = h('input', { id: 's-' + k, type: 'number', inputmode: 'numeric', min: '0', 'aria-label': label, disabled: admin ? null : true });
@@ -37,6 +38,10 @@ export function settingsView() {
     inputs[k] = el;
     return field(label, el, hint);
   };
+  const coinsIn = h('input', { id: 's-coinList', type: 'text', inputmode: 'numeric', 'aria-label': 'Монеты', disabled: admin ? null : true });
+  coinsIn.value = sd.coinList;
+  coinsIn.addEventListener('input', () => { sd.coinList = coinsIn.value; drawBar(); });
+  const parseCoins = t => String(t).split(/[^0-9]+/).map(Number).filter(n => n > 0);
   const calc = h('div', { class: 'stack' });
   function compute() {
     const p = { bank: sd.pBank, goals: sd.pGoals, others: sd.pOthers, wallet: sd.pWallet };
@@ -76,6 +81,8 @@ export function settingsView() {
   function save() {
     const c = compute();
     if (c.sum !== 100) { toast('Доли копилок должны давать 100%'); return; }
+    if (!(sd.coinStep > 0)) { toast('Шаг монет должен быть больше нуля'); return; }
+    if (!parseCoins(sd.coinList).length) { toast('Впишите монеты через запятую, например: 500, 200, 100, 50'); return; }
     const d = dirty();
     if (!d.length) return;
     const fam = familyDirty() ? familyPatch() : null;
@@ -90,6 +97,7 @@ export function settingsView() {
         bank: { monthlyRatePct: sd.rate, interestCap: sd.icap, lockSessions: sd.lock, minWithdraw: sd.minW },
         bonus: { perWeekPct: sd.bonusWeek, maxPct: sd.bonusMax },
         gift: { goalsPct: sd.giftGoals, walletMax: sd.giftWallet },
+        coinStep: sd.coinStep, coinList: K.coinList({ coinList: parseCoins(sd.coinList) }),
       };
       if (fam) patch.family = fam.family;
       ok = !!add('config', { patch });
@@ -104,6 +112,7 @@ export function settingsView() {
     balances: 'Сколько реально лежит **монетами** в каждой копилке.\nМеняйте, если пересчитали и разошлось с приложением. Мелочь при этом обнуляется.\nВ журнале останется запись, её можно отменить.',
     bank: 'Проценты начисляются на первых итогах нового месяца и не больше чем с указанной суммы.\nКаждый взнос лежит указанное число недель, потом его можно снять.\nСнять — заявкой заранее, от минимума шагом 100.',
     goals: 'Бонус за терпение: каждая монетка в целях растёт на указанный % в неделю, до максимума. Родители добавляют бонус в день покупки цели.\nДоплата: если до цены не хватает не больше указанного % — родители могут доплатить.',
+    coins: 'Какими монетами выдаёте деньги — от крупной к мелкой, через запятую. По ним приложение подсказывает, сколько каких монет дать.\nШаг — наличными выдаём суммы кратно ему, остаток копится «мелочью» в приложении. Действует с этого момента.',
     gifts: 'Подарки: указанный % — в цели, часть — в кошелёк, но не больше суммы, остальное — в банк.\nКошелёк не больше — лишнее при итогах раскладывается по копилкам.\nПотолок за 4 недели — только для подсказок в бюджете.',
   };
   const group = (title, hint, ...kids) => h('section', { class: 'panel' }, h('div', { class: 'phead' }, h('h2', {}, title), hintBtn(title, HINTS[hint])), ...kids);
@@ -124,6 +133,7 @@ export function settingsView() {
     group('Остатки копилок', 'balances', h('div', { class: 'grid2' }, num('bBank', 'Банк'), num('bGoals', 'Цели'), num('bOthers', 'Для других'), num('bWallet', 'Кошелёк'))),
     group('Банк', 'bank', h('div', { class: 'grid2' }, num('rate', 'Проценты в месяц, %'), num('icap', 'Проценты с суммы до, ' + cur()), num('lock', 'Взнос лежит, недель'), num('minW', 'Снять от, ' + cur()))),
     group('Цели', 'goals', h('div', { class: 'grid2' }, num('bonusWeek', 'Бонус в неделю, %'), num('bonusMax', 'Бонус максимум, %'), num('topUp', 'Доплата родителей, % цены'))),
+    group('Монеты', 'coins', field('Монеты, ' + cur(), coinsIn), h('div', { class: 'grid2' }, num('coinStep', 'Выдаём кратно, ' + cur()))),
     group('Подарки и потолки', 'gifts', h('div', { class: 'grid2' }, num('giftGoals', 'Подарки в цели, %'), num('giftWallet', 'Подарки в кошелёк, до ' + cur()), num('walletCap', 'Кошелёк до, ' + cur()), num('monthlyCap', 'Потолок 4 недель, ' + cur()))),
     h('p', { class: 'small muted' }, 'Деньги и лимиты действуют со следующих итогов недели, остатки — сразу. Каждое изменение видно в журнале.'),
     bar);

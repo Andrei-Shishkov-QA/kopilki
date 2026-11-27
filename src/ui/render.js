@@ -5,6 +5,7 @@ import { channelBar } from './channel.js';
 import { clockBar } from './clock.js';
 import { setBadge, updateBar } from './pwa.js';
 import { sessionDue } from './queries.js';
+import { needsSetup, setupView } from './setup.js';
 import { demoBar, helpSheet } from './docs.js';
 import { h, toast } from './dom.js';
 import { habitsView } from './habits.js';
@@ -25,6 +26,7 @@ export function render() {
   for (const bar of [updateBar(), channelBar(), clockBar()]) if (bar) app.append(bar);
   if (store.mode === 'connecting') return app.append(h('main', { class: 'wrap login' }, h('p', { class: 'muted' }, 'Подключаюсь…')));
   if (store.mode === 'login') return app.append(loginView());
+  if (needsSetup()) return app.append(setupView());
   if (store.mode === 'cloud' || store.demo) setBadge(!store.demo && sessionDue());
   if (r === 'kid') return app.append(kidView());
   if (!user || !isPerson(user)) return app.append(loginView());

@@ -8,7 +8,7 @@ import { draftEvent, preview } from './session.js';
 
 export function stepGive(nav) {
   const { report: r } = preview();
-  const coinsLine = v => v > 0 ? h('span', { class: 'coins' }, K.coins(v).map(c => h('i', { class: 'coin c' + c.coin }, c.count + '×' + c.coin))) : h('span', { class: 'muted' }, 'ничего');
+  const coinsLine = v => v > 0 ? h('span', { class: 'coins' }, K.coins(v, K.coinList(state.config)).map(c => h('i', { class: 'coin c' + c.coin }, c.count + '×' + c.coin))) : h('span', { class: 'muted' }, 'ничего');
   const take = r.take.goals + r.take.others + r.take.wallet;
   const open = state.notes.filter(n => n.status === 'open');
   const wInput = amountInput('new-withdraw', 'Новая заявка в банк');
@@ -28,7 +28,7 @@ export function stepGive(nav) {
       h('div', { class: 'kv big-kv' }, h('span', {}, 'Дайте ' + kid('dat') + ' монетами'), h('span', {}, dram(coinsAll))),
       h('p', { class: 'small' }, gx('Он сам раскладывает', 'Она сама раскладывает') + ' на 4 кучки и отдаёт вам ' + dram(r.give.bank) + ' в банк.' + (r.bank.withdrawn ? ' Плюс из банка по заявке ' + dram(r.bank.withdrawn) + '.' : '')),
       take ? h('p', { class: 'small' }, 'И заберите у ' + kid('gen') + ' за покупки ' + dram(take) + '. Можно просто зачесть: выдать на ' + dram(Math.max(0, cashOut - take)) + ' меньше.') : null,
-      h('p', { class: 'small muted' }, 'Мелочь меньше 50 ' + cur() + ' приложение запоминает и добавит позже.')),
+      h('p', { class: 'small muted' }, 'Мелочь меньше ' + state.config.coinStep + ' ' + cur() + ' приложение запоминает и добавит позже.')),
     h('section', { class: 'panel talk' },
       h('h2', {}, 'Поговорить с ' + kid('ins')),
       r.income.overChips ? h('p', { class: 'maxbadge' }, 'Максимум недели!') : null,
@@ -38,8 +38,8 @@ export function stepGive(nav) {
         [['bank', 'В банк'], ['goals', 'На цели'], ['others', 'На подарки другим'], ['wallet', 'В кошелёк, тратить']].map(([k, t]) =>
           h('div', { class: 'kv' }, h('span', {}, t), h('span', {}, dram(r.give[k]), tailMark(k))))),
       smallSum > 0 ? h('div', { class: 'note small' },
-        h('p', {}, h('b', {}, 'Где ещё ' + dram(smallSum) + '? '), 'Это мелочь меньше 50: её не разделить монетами, поэтому она записана в приложении и лежит у родителей.'),
-        h('p', {}, 'Когда в копилке наберётся 50 ' + cur() + ' мелочи, она превратится в монетку. Сейчас мелочь: ' + [['bank', 'банк'], ['goals', 'цели'], ['others', 'подарки'], ['wallet', 'кошелёк']].filter(([k]) => tailNow[k]).map(([k, t]) => t + ' ' + tailNow[k]).join(', ') + '.')) : null),
+        h('p', {}, h('b', {}, 'Где ещё ' + dram(smallSum) + '? '), 'Это мелочь меньше ' + state.config.coinStep + ': её не разделить монетами, поэтому она записана в приложении и лежит у родителей.'),
+        h('p', {}, 'Когда в копилке наберётся ' + state.config.coinStep + ' ' + cur() + ' мелочи, она превратится в монетку. Сейчас мелочь: ' + [['bank', 'банк'], ['goals', 'цели'], ['others', 'подарки'], ['wallet', 'кошелёк']].filter(([k]) => tailNow[k]).map(([k, t]) => t + ' ' + tailNow[k]).join(', ') + '.')) : null),
     h('section', { class: 'panel' },
       h('h2', {}, 'Какими монетами'),
       h('div', { class: 'give bank' }, h('div', { class: 'top' }, h('b', {}, 'В банк'), h('span', { class: 'num' }, dram(r.give.bank), tailMark('bank'))), coinsLine(r.give.bank)),

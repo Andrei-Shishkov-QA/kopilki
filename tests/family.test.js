@@ -26,6 +26,10 @@ test('Падежи имени угадываются', () => {
   assert.strictEqual(f('Анна'), 'Анны Анне Анной');
   assert.strictEqual(f('Мария'), 'Марии Марии Марией');
   assert.strictEqual(f('Игорь'), 'Игоря Игорю Игорем');
+  assert.strictEqual(f('Павел'), 'Павла Павлу Павлом');
+  assert.strictEqual(f('Лев'), 'Льва Льву Львом');
+  assert.strictEqual(f('Пётр'), 'Петра Петру Петром');
+  assert.strictEqual(f('Давид'), 'Давида Давиду Давидом');
 });
 
 test('Запись config с family меняет имя, людей и валюту; журнал не трогается', () => {

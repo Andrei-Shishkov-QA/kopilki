@@ -71,5 +71,22 @@ test('Часы: обычный часовой пояс семьи', () => {
   assert.strictEqual(K.usualOffset([]), null);
 });
 
+test('Точное время: запись в поясе семьи', () => {
+  const ms = Date.parse('2026-11-27T10:05:30Z');
+  assert.strictEqual(K.isoAt(ms, '+04:00'), '2026-11-27T14:05:30+04:00');
+  assert.strictEqual(K.isoAt(ms, '-03:30'), '2026-11-27T06:35:30-03:30');
+  assert.strictEqual(K.isoAt(Date.parse('2026-11-27T22:30:00Z'), '+04:00'), '2026-11-28T02:30:00+04:00');   // уже завтра
+  assert.strictEqual(K.offsetMinutes('+04:00'), 240);
+  assert.strictEqual(K.isoAt(ms, 'x'), null);
+});
+
+test('Монеты из настроек', () => {
+  assert.deepStrictEqual(K.coins(750).map(c => c.coin + 'x' + c.count), ['500x1', '200x1', '50x1']);
+  assert.deepStrictEqual(K.coins(30, [10, 5, 2, 1]).map(c => c.coin + 'x' + c.count), ['10x3']);
+  assert.deepStrictEqual(K.coinList({ coinList: [1, '10', 5, 5, -2, 'x'] }), [10, 5, 1]);
+  assert.deepStrictEqual(K.coinList({}), [500, 200, 100, 50, 20, 10]);
+  assert.strictEqual(K.coinsText(0), '—');
+});
+
 console.log('\n' + results.join('\n'));
 console.log((results.length - failed) + ' из ' + results.length + ' проверок PWA и часов пройдено');

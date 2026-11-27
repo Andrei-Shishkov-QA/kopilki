@@ -3,7 +3,7 @@ import { PALETTES, applyPalette, lsPalette, recompute, setEvents, setStatus, sto
 import { unlockBody } from './dom.js';
 import { render } from './render.js';
 import { redirectIfPinned } from './channel.js';
-import { checkClock } from './clock.js';
+import { applyFix, checkClock } from './clock.js';
 import { startPwa } from './pwa.js';
 
 if (redirectIfPinned()) throw new Error('переход на выбранную версию');   // дальше не запускаемся
@@ -14,7 +14,7 @@ window.addEventListener('hashchange', () => { document.querySelectorAll('.sheet-
 
 // запуск — в самом конце, когда все функции и константы уже объявлены
 store.subscribe((ev, st) => {
-  setEvents(ev); setStatus(st); recompute();
+  setEvents(ev); setStatus(st); recompute(); applyFix();
   // не перерисовывать, пока человек печатает в поле — иначе сбивается ввод
   const f = document.activeElement;
   if (f && (f.tagName === 'INPUT' || f.tagName === 'TEXTAREA') && f.closest('main, form')) return;

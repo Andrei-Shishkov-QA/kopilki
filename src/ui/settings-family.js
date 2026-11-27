@@ -37,14 +37,11 @@ export function familyPanel(admin, onChange) {
   const text = (id, label, val, on, attrs) => { const el = h('input', { id, type: 'text', 'aria-label': label, disabled: admin ? null : true, ...(attrs || {}) }); el.value = val || ''; el.addEventListener('input', () => on(el.value)); return el; };
 
   function draw() {
-    const forms = h('div', { class: 'grid2' },
-      field('Кого? (нет …)', text('fam-gen', 'Кого', d.child.gen, v => { d.child.gen = v; bar(); })),
-      field('Кому? (дать …)', text('fam-dat', 'Кому', d.child.dat, v => { d.child.dat = v; bar(); })),
-      field('С кем? (поговорить с …)', text('fam-ins', 'С кем', d.child.ins, v => { d.child.ins = v; bar(); })));
+    const forms = nameForms(d.child, admin, text, () => bar());
     const name = text('fam-name', 'Имя ребёнка', d.child.name, v => {
       const g = K.nameForms(v);
-      d.child = { ...d.child, name: v.trim(), gen: g.gen, dat: g.dat, ins: g.ins };
-      forms.querySelector('#fam-gen').value = g.gen; forms.querySelector('#fam-dat').value = g.dat; forms.querySelector('#fam-ins').value = g.ins;
+      Object.assign(d.child, { name: v.trim(), gen: g.gen, dat: g.dat, ins: g.ins });
+      forms.sync();
       bar();
     }, { autocomplete: 'off' });
     const shown = d.people.filter(p => !p.hidden);
@@ -56,7 +53,7 @@ export function familyPanel(admin, onChange) {
       field('Имя ребёнка', name),
       admin ? choice('fam-girl', [['boy', 'Мальчик'], ['girl', 'Девочка']], d.child.girl ? 'girl' : 'boy', v => { d.child.girl = v === 'girl'; bar(); })
         : h('p', { class: 'small muted' }, d.child.girl ? 'Девочка' : 'Мальчик'),
-      forms,
+      forms.el,
       h('span', { class: 'label' }, 'Кто записывает'),
       peopleList,
       admin ? h('button', { type: 'button', class: 'ghost', onclick: () => { d.people.push({ id: 'p' + Date.now().toString(36), name: '' }); draw(); bar(); } }, '+ Добавить взрослого') : null,
@@ -68,4 +65,25 @@ export function familyPanel(admin, onChange) {
 
   draw();
   return h('section', { class: 'panel' }, h('div', { class: 'phead' }, h('h2', {}, 'Семья'), hintBtn('Семья', HINT)), box);
+}
+
+/**
+ * Падежи имени: обычно одна строчка «Так будет: нет Сергея · дать Сергею · с Сергеем · Поправить».
+ * Три поля появляются, только если нажать «Поправить» (для имён вроде Павел → Павла, Лев → Льва).
+ * child меняется на месте; text — как в панели; onChange — после правки. Возвращает { el, sync }.
+ */
+export function nameForms(child, editable, text, onChange) {
+  const el = h('div', { class: 'stack' });
+  let open = false;
+  const line = () => h('p', { class: 'small muted' }, child.name ? 'Так будет: нет ' + child.gen + ' · дать ' + child.dat + ' · с ' + child.ins + ' ' : 'Впишите имя — падежи подставятся сами. ',
+    editable && child.name ? h('button', { type: 'button', class: 'ghost small', onclick: () => { open = true; sync(); } }, 'Поправить') : null);
+  function sync() {
+    if (!open) return setKids(el, line());
+    setKids(el, h('div', { class: 'grid2' },
+      field('Кого? (нет …)', text('fam-gen', 'Кого', child.gen, v => { child.gen = v; onChange(); })),
+      field('Кому? (дать …)', text('fam-dat', 'Кому', child.dat, v => { child.dat = v; onChange(); })),
+      field('С кем? (поговорить с …)', text('fam-ins', 'С кем', child.ins, v => { child.ins = v; onChange(); }))));
+  }
+  sync();
+  return { el, sync };
 }

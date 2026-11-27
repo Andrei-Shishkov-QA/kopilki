@@ -11,6 +11,7 @@ export const DEFAULT_CONFIG = {
   holidayWalletPct: 20,            // доля кошелька на каникулах
   walletCap: 1000,                 // потолок кошелька
   coinStep: 50,                    // наличные — кратно 50
+  coinList: [500, 200, 100, 50, 20, 10], // какими монетами раскладывать (от крупной к мелкой)
   bank: {
     monthlyRatePct: 10,            // проценты в месяц
     interestCap: 2000,             // проценты начисляются максимум на эту сумму
@@ -59,20 +60,26 @@ export function int(x, name) {
   return n;
 }
 
-/** Разложить сумму на монеты 500/200/100/50 (и мелочь, если не кратно 50). */
-export function coins(amount) {
+/** Монеты из настроек: целые > 0, от крупной к мелкой, без повторов. */
+export function coinList(config) {
+  const l = ((config && config.coinList) || DEFAULT_CONFIG.coinList).map(Number).filter(n => Number.isInteger(n) && n > 0);
+  return l.length ? [...new Set(l)].sort((a, b) => b - a) : DEFAULT_CONFIG.coinList.slice();
+}
+
+/** Разложить сумму на монеты (по умолчанию 500/200/100/50/20/10). list — номиналы из настроек. */
+export function coins(amount, list) {
   const out = [];
   let rest = Math.max(0, Math.floor(amount));
-  for (const c of [500, 200, 100, 50, 20, 10]) {
+  for (const c of list && list.length ? list : DEFAULT_CONFIG.coinList) {
     const n = Math.floor(rest / c);
     if (n > 0) { out.push({ coin: c, count: n }); rest -= n * c; }
   }
   return out;
 }
 
-export function coinsText(amount) {
+export function coinsText(amount, list) {
   if (amount <= 0) return '—';
-  return coins(amount).map(c => c.count + '×' + c.coin).join(' + ');
+  return coins(amount, list).map(c => c.count + '×' + c.coin).join(' + ');
 }
 
 /** Пропорция на эту неделю: обычная или каникулярная. */

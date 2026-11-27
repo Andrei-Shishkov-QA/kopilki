@@ -1,18 +1,19 @@
 // Движок: человеческий текст отчёта об итогах недели.
-import { JAR_NAMES, coinsText } from './config.js';
+import { JAR_NAMES, coinList, coinsText } from './config.js';
 import { family } from './family.js';
 
 /** Человеческий текст отчёта для мастера сессии. */
 export function sessionLines(r, state) {
   const L = [];
-  const F = family(state.config), kid = F.child, cur = ' ' + F.currency;
+  const F = family(state.config), kid = F.child, cur = ' ' + F.currency, cl = coinList(state.config);
+  const ct = v => coinsText(v, cl);
   const inc = r.income;
   L.push('Доход недели: база ' + inc.base + ' + фишки ' + inc.chips + '×' + state.config.chipPrice + ' = ' + inc.chipMoney + (inc.found ? ' + найденные ' + inc.found : '') + (inc.other ? ' + прочее ' + inc.other : '') + ' = ' + inc.normal + cur + '.');
   L.push('Деление' + (r.holiday ? ' (каникулы)' : '') + ': банк ' + r.split.bank + ', цели ' + r.split.goals + ', для других ' + r.split.others + ', кошелёк ' + r.split.wallet + '.');
   if (inc.overChips) L.push('Максимум недели! Сверх лимита ' + inc.overChips + ' ф. за полцены = ' + inc.overMoney + cur + ' — сразу в банк.');
   if (r.gift) L.push('Подарки ' + r.gift.total + ': в цели ' + r.gift.goals + ', в кошелёк ' + r.gift.wallet + ', в банк ' + r.gift.bank + '.');
   if (r.advance) L.push('Аванс в понедельник: ' + r.advance + cur + ' уже выдан.');
-  L.push('В банк ' + kid.name + ' отдаёт родителям ' + r.give.bank + ' (' + coinsText(r.give.bank) + '). Выдать наличными: кошелёк ' + r.give.wallet + ' (' + coinsText(r.give.wallet) + '), цели ' + r.give.goals + ' (' + coinsText(r.give.goals) + '), для других ' + r.give.others + ' (' + coinsText(r.give.others) + ').');
+  L.push('В банк ' + kid.name + ' отдаёт родителям ' + r.give.bank + ' (' + ct(r.give.bank) + '). Выдать наличными: кошелёк ' + r.give.wallet + ' (' + ct(r.give.wallet) + '), цели ' + r.give.goals + ' (' + ct(r.give.goals) + '), для других ' + r.give.others + ' (' + ct(r.give.others) + ').');
   for (const p of r.purchases) {
     if (!p.ok) continue;
     if (p.kind === 'goal' && p.from === 'goals') L.push('Покупка цели «' + p.what + '» за ' + p.amount + ': из копилки ' + p.kidPays + ', бонус родителей ' + p.bonus + (p.topUp ? ', доплата ' + p.topUp : '') + '. ' + kid.name + ' отдаёт наличными ' + p.cashFromJar + '.');

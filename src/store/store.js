@@ -8,9 +8,9 @@
 import { initializeApp, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, setDoc, onSnapshot } from '../../vendor/firebase.js';
 import { FIREBASE } from './config.js';
-import { KEY, lsGet, lsSet, deviceId, localIso, newId, nextSeq, clean } from './util.js';
+import { KEY, lsGet, lsSet, deviceId, localIso, newId, nextSeq, clean, clockFix, setClockFix } from './util.js';
 
-export { KEY, deviceId, localIso, newId };
+export { KEY, deviceId, localIso, newId, setClockFix };
 
 const ERR = {
   'permission-denied': 'Этому входу нет доступа к базе. Войдите семейным аккаунтом.',
@@ -107,7 +107,8 @@ export function createStore() {
 
   /** Добавить запись. Возвращает записанное событие. */
   function add(type, data, by) {
-    const e = clean({ ...data, id: newId(), seq: nextSeq(), type, at: (data && data.at) || localIso(), by: by || '', device: deviceId() });
+    const fx = data && data.at ? null : clockFix();   // время поправлено по серверу — отметить (новое поле, старые версии его не замечают)
+    const e = clean({ ...data, id: newId(), seq: nextSeq(), type, at: (data && data.at) || localIso(), by: by || '', device: deviceId(), ...(fx ? { clockFix: fx } : {}) });
     if (demo) { demo.events.push({ ...e, demo: true }); demoSet(demo); emit(); return e; }
     if (mode !== 'cloud') throw new Error('Сначала войдите в аккаунт.');
     cloud.set(e.id, e);   // сразу видно на экране; Firestore подтвердит сам

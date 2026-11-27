@@ -66,6 +66,7 @@ const FILES = [
   'src/ui/settings-extra.js',
   'src/ui/settings-family.js',
   'src/ui/settings.js',
+  'src/ui/setup.js',
   'src/ui/weeks.js',
   'src/version.js',
   'vendor/firebase.js',

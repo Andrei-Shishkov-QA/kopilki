@@ -17,12 +17,18 @@ export async function checkClock(force) {
     const r = await fetch(where().root + 'versions.json?clock=' + t0, { method: 'HEAD', cache: 'no-store' });
     const t1 = Date.now();
     const s = K.clockSkew(t0, t1, r.headers.get('Date'));
-    if (s !== null) { const was = bad(); skew = s; lastAt = t1; if (was !== bad()) softRender(); }
+    if (s !== null) { const was = bad(); skew = s; lastAt = t1; applyFix(); if (was !== bad()) softRender(); }
   } catch (e) { /* нет сети — проверим позже */ }
   finally { busy = false; }
 }
 
 const bad = () => skew !== null && Math.abs(skew) > K.CLOCK_LIMIT_MS;
+
+/** Пояс семьи, если пояс телефона другой (иначе null). */
+function tzFix() { const usual = K.usualOffset(events), mine = K.offsetOf(S.localIso(new Date())); return usual && mine && usual !== mine ? usual : null; }
+
+/** Записи — по точному времени и в поясе семьи, даже если часы телефона врут. */
+export function applyFix() { S.setClockFix(bad() ? skew : 0, tzFix()); }
 
 function howMuch(ms) {
   const m = Math.round(Math.abs(ms) / 60000);
@@ -38,10 +44,10 @@ const fmt = t => new Date(t).toLocaleString('ru-RU', { day: 'numeric', month: 'l
 export function clockBar() {
   const msgs = [];
   if (bad()) msgs.push('Часы телефона ' + (skew > 0 ? 'спешат' : 'отстают') + ' на ' + howMuch(skew) + '. На самом деле сейчас ' + fmt(Date.now() - skew) + '.');
-  const usual = K.usualOffset(events), mine = K.offsetOf(S.localIso());
+  const usual = K.usualOffset(events), mine = K.offsetOf(S.localIso(new Date()));
   if (usual && mine && usual !== mine) msgs.push('Часовой пояс телефона (UTC' + mine + ') не такой, как в журнале (UTC' + usual + ').');
   if (!msgs.length) return null;
   return h('div', { class: 'chanbar warn', role: 'alert' },
-    h('span', {}, msgs.join(' ') + ' Поправьте дату, время и пояс в настройках телефона (лучше «автоматически») — иначе записи попадут не в тот день.'),
+    h('span', {}, msgs.join(' ') + ' Записи приложение ставит по точному времени, но лучше поправить дату, время и пояс в настройках телефона (лучше «автоматически»).'),
     h('button', { type: 'button', class: 'small', onclick: () => checkClock(true).then(softRender) }, 'Проверить'));
 }

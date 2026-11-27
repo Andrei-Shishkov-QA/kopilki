@@ -4,7 +4,7 @@ import { choice, cur, fmt, h, svgEl } from './dom.js';
 import { jarInfo } from './jar-info.js';
 import { render } from './render.js';
 
-/** Копилки: крупно — монетами (кратно 50), справа маленьким серым — мелочь, которая пока только в приложении. */
+/** Копилки: крупно — монетами (кратно шагу монет из настроек), справа маленьким серым — мелочь, которая пока только в приложении. */
 export function jarSum(cash, tail) {
   return h('span', { class: 'sum' }, fmt(cash), tail ? h('small', { class: 'tail' }, '+' + fmt(tail)) : null);
 }
