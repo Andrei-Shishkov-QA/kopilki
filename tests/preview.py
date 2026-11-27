@@ -25,7 +25,8 @@ async def main(shots):
     try:
         async with async_playwright() as p:
             b = await p.chromium.launch(**({'executable_path': CHROME} if CHROME else {}), args=['--no-sandbox'])
-            pg = await b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
+            ctx = await b.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, service_workers='block')  # sw.js не мешает подмене Firebase
+            pg = await ctx.new_page()
             errs = []
             pg.on('pageerror', lambda e: errs.append('PAGE: ' + str(e)))
             await pg.route('**/vendor/firebase.js', lambda r: r.fulfill(body=fake, content_type='text/javascript'))

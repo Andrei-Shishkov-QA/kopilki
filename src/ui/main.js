@@ -3,6 +3,8 @@ import { PALETTES, applyPalette, lsPalette, recompute, setEvents, setStatus, sto
 import { unlockBody } from './dom.js';
 import { render } from './render.js';
 import { redirectIfPinned } from './channel.js';
+import { checkClock } from './clock.js';
+import { startPwa } from './pwa.js';
 
 if (redirectIfPinned()) throw new Error('переход на выбранную версию');   // дальше не запускаемся
 
@@ -22,3 +24,8 @@ store.subscribe((ev, st) => {
 store.init();
 
 render();
+
+startPwa();                // иконка на экране, работа без интернета, «есть новая версия»
+checkClock(true);          // неверные часы телефона — плашка сверху
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkClock(false); });
+window.addEventListener('online', () => checkClock(true));

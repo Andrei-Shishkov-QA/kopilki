@@ -6,3 +6,4 @@ kidbank-*.json
 kidbank-*.csv
 backups/
 _site/
+__pycache__/

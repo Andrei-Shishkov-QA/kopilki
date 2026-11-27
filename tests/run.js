@@ -16,7 +16,9 @@ function walk(dir) {
   }
 }
 roots.forEach(walk);
+for (const p of ['index.html', 'sw.js']) { const n = readFileSync(p, 'utf8').split('\n').length; if (n > MAX) long.push(p + ': ' + n + ' строк'); }
 if (long.length) { console.log('✗ Файлы длиннее ' + MAX + ' строк:\n  ' + long.join('\n  ')); process.exitCode = 1; }
 else console.log('✓ Все файлы не длиннее ' + MAX + ' строк');
 
 await import('./engine.test.js');
+await import('./pwa.test.js');

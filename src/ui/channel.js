@@ -20,6 +20,7 @@ export function where() {
 export function redirectIfPinned() {
   const w = where(), pin = pinGet();
   if (w.channel || !pin) return false;
+  if (pin.startsWith('v/') && navigator.onLine === false) return false;   // прошлые версии без интернета не открываются — остаёмся на основной
   location.replace(w.root + pin + '/' + location.hash);
   return true;
 }
