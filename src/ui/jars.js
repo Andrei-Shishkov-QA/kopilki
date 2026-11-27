@@ -1,6 +1,6 @@
 // Копилки на экране: карточки, стопки, банки, кольца.
 import { K, add, state } from './core.js';
-import { choice, fmt, h, svgEl } from './dom.js';
+import { choice, cur, fmt, h, svgEl } from './dom.js';
 import { jarInfo } from './jar-info.js';
 import { render } from './render.js';
 
@@ -29,7 +29,7 @@ export function jarsBlock(styleArg, big) {
   const ib = k => h('button', { type: 'button', class: 'jinfo', 'aria-label': 'Правила и история копилки', onclick: () => jarInfo(k) }, 'i');
   const amount = j => h('span', { class: 'sum num' }, fmt(j.cash), j.tail ? h('small', { class: 'tail' }, '+' + fmt(j.tail)) : null);
   if (style === 'cards') return h('div', { class: 'jars' + (big ? ' big' : '') }, list.map(j => h('div', { class: 'jar ' + j.id },
-    h('span', { class: 'name' }, h('i', { class: 'coinicon', 'aria-hidden': 'true' }, '֏'), j.name), amount(j), ib(j.id))));
+    h('span', { class: 'name' }, h('i', { class: 'coinicon', 'aria-hidden': 'true' }, cur()), j.name), amount(j), ib(j.id))));
   return h('div', { class: 'jarviz ' + style + (big ? ' big' : '') }, list.map(j => {
     const pct = Math.min(1, (j.cash + j.tail) / max);
     let pic;
@@ -44,7 +44,7 @@ export function jarsBlock(styleArg, big) {
       const r = 30, c = 2 * Math.PI * r, d = (c * pct).toFixed(1);
       pic = svgEl('<svg viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="30" fill="none" stroke="var(--tint)" stroke-width="9"/><circle cx="38" cy="38" r="30" fill="none" stroke="var(--c)" stroke-width="9" stroke-linecap="round" stroke-dasharray="' + d + ' ' + c.toFixed(1) + '" transform="rotate(-90 38 38)"/></svg>', 'ring');
     }
-    return h('button', { type: 'button', class: 'jv ' + j.id, onclick: () => jarInfo(j.id), 'aria-label': j.name + ': ' + fmt(j.cash + j.tail) + ' драм' }, amount(j), pic, h('span', { class: 'nm' }, j.name));
+    return h('button', { type: 'button', class: 'jv ' + j.id, onclick: () => jarInfo(j.id), 'aria-label': j.name + ': ' + fmt(j.cash + j.tail) + ' ' + cur() }, amount(j), pic, h('span', { class: 'nm' }, j.name));
   }));
 }
 

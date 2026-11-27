@@ -1,5 +1,6 @@
 // Движок: итоги недели (сессия) — проценты, заявки, пересчёт, покупки, доход, раскладка.
 import { weekChipSummary } from './chips.js';
+import { family } from './family.js';
 import { JAR_NAMES, dayKey, int, isHoliday, monthKey, splitAmount, weekProportion } from './config.js';
 import { sessionLines } from './lines.js';
 import { addBatch, addLedger, bankAvailable, bankTotal, creditBank, creditJar, debitJar, emptyWeek, jarTotal, quotePurchase, removeFromBatches, snapshot } from './state.js';
@@ -8,6 +9,7 @@ import { addBatch, addLedger, bankAvailable, bankTotal, creditBank, creditJar, d
 
 export function processSession(state, ev) {
   const cfg = state.config;
+  const cur = ' ' + family(cfg).currency;
   const k = state.sessionIndex + 1;
   const holiday = ev.holiday != null ? !!ev.holiday : isHoliday(cfg, ev.at);
   const prop = weekProportion(cfg, holiday);
@@ -40,10 +42,10 @@ export function processSession(state, ev) {
   const due = state.bank.requests.filter(q => q.status === 'pending');
   for (const q of due) {
     const reasons = [];
-    if (q.amount < cfg.bank.minWithdraw) reasons.push('меньше ' + cfg.bank.minWithdraw + ' драм');
+    if (q.amount < cfg.bank.minWithdraw) reasons.push('меньше ' + cfg.bank.minWithdraw + cur);
     if ((q.amount - cfg.bank.minWithdraw) % cfg.bank.withdrawStep !== 0) reasons.push('не кратно ' + cfg.bank.withdrawStep);
     const avail = bankAvailable(state, k);
-    if (q.amount > avail) reasons.push('доступно только ' + avail + ' драм');
+    if (q.amount > avail) reasons.push('доступно только ' + avail + cur);
     if (reasons.length) {
       q.status = 'rejected'; q.reason = reasons.join(', ');
       r.bank.rejected.push({ id: q.id, amount: q.amount, what: q.what, reason: q.reason });
@@ -88,7 +90,7 @@ export function processSession(state, ev) {
         for (const b of state.goals.batches) b.age = 0;
         state.stats.thefts += 1;
         addLedger(state, 'out', 'goalsTaken', diff);
-        r.warnings.push('В копилке целей не хватает ' + diff + ' драм. Весь накопленный бонус сгорел.');
+        r.warnings.push('В копилке целей не хватает ' + diff + cur + '. Весь накопленный бонус сгорел.');
       } else {
         addLedger(state, 'out', 'goalsOtherSpend', diff);
       }
@@ -97,7 +99,7 @@ export function processSession(state, ev) {
       state.goals.cash = counted;
       addBatch(state, -diff, false, 'adjust');
       addLedger(state, 'in', 'adjust', -diff);
-      r.warnings.push('В копилке целей на ' + (-diff) + ' драм больше, чем по записям.');
+      r.warnings.push('В копилке целей на ' + (-diff) + cur + ' больше, чем по записям.');
     }
     r.recount.goals = { expected, counted, missing: Math.max(0, diff), extra: Math.max(0, -diff), mode };
   }
@@ -125,12 +127,12 @@ export function processSession(state, ev) {
         else if (q.topUpAllowed) topUp = q.shortfall;
         if (topUp < q.shortfall) {
           res.ok = false;
-          res.reason = 'Не хватает ' + q.shortfall + ' драм (доплата папы — до ' + q.topUpMax + ').';
+          res.reason = 'Не хватает ' + q.shortfall + cur + ' (доплата родителей — до ' + q.topUpMax + ').';
           r.warnings.push('Покупка «' + res.what + '» не проведена: ' + res.reason);
           r.purchases.push(res);
           continue;
         }
-        if (topUp > q.topUpMax) r.warnings.push('Доплата ' + topUp + ' драм больше обычных 20% (' + q.topUpMax + ').');
+        if (topUp > q.topUpMax) r.warnings.push('Доплата ' + topUp + cur + ' больше обычных 20% (' + q.topUpMax + ').');
       }
       // списываем использованное
       for (const u of q.uses) u.batch.amount -= u.amount;
@@ -147,7 +149,7 @@ export function processSession(state, ev) {
       const jarKey = p.from === 'others' ? 'others' : p.from === 'wallet' ? 'wallet' : 'goals';
       const jar = state[jarKey];
       if (amount > jarTotal(jar)) {
-        res.ok = false; res.reason = 'В копилке «' + JAR_NAMES[jarKey] + '» только ' + jarTotal(jar) + ' драм.';
+        res.ok = false; res.reason = 'В копилке «' + JAR_NAMES[jarKey] + '» только ' + jarTotal(jar) + cur + '.';
         r.warnings.push('Покупка «' + res.what + '» не проведена: ' + res.reason);
         r.purchases.push(res);
         continue;

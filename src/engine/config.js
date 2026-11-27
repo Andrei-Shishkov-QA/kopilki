@@ -55,7 +55,7 @@ export function monthKey(at) { return String(at).slice(0, 7); }
 
 export function int(x, name) {
   const n = Number(x);
-  if (!Number.isFinite(n) || Math.round(n) !== n) throw new Error('Сумма должна быть целым числом драм: ' + name + ' = ' + x);
+  if (!Number.isFinite(n) || Math.round(n) !== n) throw new Error('Сумма должна быть целым числом: ' + name + ' = ' + x);
   return n;
 }
 

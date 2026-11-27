@@ -16,7 +16,10 @@ export function h(tag, attrs, ...kids) {
 
 export const fmt = n => (Math.round(n) || 0).toLocaleString('ru-RU').replace(/ /g, ' ');
 
-export const dram = n => fmt(n) + ' ֏';
+let CUR = '֏';   // знак валюты из настроек семьи (core.recompute)
+export function setCurrency(c) { CUR = c || '֏'; }
+export const cur = () => CUR;
+export const dram = n => fmt(n) + ' ' + CUR;
 
 export function when(at) {
   const d = new Date(at);
@@ -89,7 +92,7 @@ export function plural(n, one, few, many) { const a = Math.abs(n) % 100, b = a %
 
 export function setKids(el, ...kids) { el.replaceChildren(...kids.flat().filter(k => k != null && k !== false)); }
 
-export function amountInput(id, label) { return h('input', { id, type: 'number', inputmode: 'numeric', min: '0', step: '10', placeholder: 'Сумма, ֏', 'aria-label': label || 'Сумма' }); }
+export function amountInput(id, label) { return h('input', { id, type: 'number', inputmode: 'numeric', min: '0', step: '10', placeholder: 'Сумма, ' + CUR, 'aria-label': label || 'Сумма' }); }
 
 export function readAmount(inp) { const v = Math.round(Number(inp.value)); return Number.isFinite(v) && v > 0 ? v : 0; }
 

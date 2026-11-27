@@ -1,5 +1,5 @@
 // Вкладка «Ещё»: цвета и вид, демо, резервные копии.
-import { APP_VERSION, PALETTES, S, add, applyPalette, currentPalette, events, go, state, store, user, who } from './core.js';
+import { APP_VERSION, kid, PALETTES, S, add, applyPalette, currentPalette, events, go, state, store, user, who } from './core.js';
 import { versionPanel } from './channel.js';
 import { demoPanel } from './docs.js';
 import { confirmBtn, h, sheet, toast } from './dom.js';
@@ -73,7 +73,7 @@ export function backupView() {
   const file = h('input', { id: 'import-file', type: 'file', accept: '.json,application/json', hidden: true, onchange: e => { const f = e.target.files[0]; if (f) importSheet(f); e.target.value = ''; } });
   const current = currentPalette();
   return h('main', { class: 'wrap' },
-    h('div', { class: 'grid2' }, h('button', { type: 'button', onclick: () => go('rules') }, 'Правила системы'), h('button', { type: 'button', onclick: () => go('kid') }, 'Экран Сергея')),
+    h('div', { class: 'grid2' }, h('button', { type: 'button', onclick: () => go('rules') }, 'Правила системы'), h('button', { type: 'button', onclick: () => go('kid') }, 'Экран ' + kid('gen'))),
     versionPanel(),
     demoPanel(),
     h('section', { class: 'panel' },

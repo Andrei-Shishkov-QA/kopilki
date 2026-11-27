@@ -1,5 +1,5 @@
 // Общее состояние интерфейса: журнал, текущее состояние, кто вошёл, режим настройки, запись событий.
-import { toast } from './dom.js';
+import { setCurrency, toast } from './dom.js';
 import { render } from './render.js';
 
 import * as K from '../engine/index.js';
@@ -10,9 +10,16 @@ export const USER_KEY = 'kidbank.user';
 
 export { VERSION as APP_VERSION } from '../version.js';
 
-export const PEOPLE = { papa: 'Папа', mama: 'Мама' };
+// Семья (имя ребёнка, кто записывает, валюта) — из настроек, config.family. См. src/engine/family.js.
+export const fam = () => K.family(state.config);
+/** Имя ребёнка: kid() — Сергей, kid('gen') — Сергея, kid('dat') — Сергею, kid('ins') — Сергеем. */
+export const kid = form => fam().child[form || 'name'];
+/** Слово по полу ребёнка: gx('начал', 'начала'). */
+export const gx = (m, f) => (fam().child.girl ? f : m);
+export const people = () => K.activePeople(state.config);
+export const isPerson = id => people().some(p => p.id === id);
 
-export const who = id => PEOPLE[id] || (id === 'claude' ? 'Claude' : id || '—');
+export const who = id => K.personName(state.config, id);
 
 export const store = S.createStore();
 
@@ -29,7 +36,6 @@ export function setUser(v) { user = v; }
 
 try { user = localStorage.getItem(USER_KEY); } catch (e) { user = null; }
 
-if (!PEOPLE[user]) user = null;
 
 export const PALETTES = [['red', 'Красно-чёрная', ['#141414', '#c8102e', '#f6f4f3']], ['graphite', 'Графит', ['#1f2328', '#e8590c', '#f4f4f2']], ['sea', 'Море', ['#0b6e8a', '#d9822b', '#f2f6f7']]];
 
@@ -59,7 +65,11 @@ export function route() { return (location.hash || '#start').slice(1); }
 export function go(name) { if (route() === name) render(); else location.hash = name; }
 
 // ------------------------------------------------------------ данные
-export function recompute() { state = K.replay(events); }
+export function recompute() {
+  state = K.replay(events);
+  setCurrency(fam().currency);
+  try { document.title = 'Копилки ' + kid('gen'); } catch (e) { /* ignore */ }
+}
 
 export function add(type, data) {
   try { return store.add(type, data || {}, user); }

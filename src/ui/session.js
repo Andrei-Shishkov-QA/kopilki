@@ -1,5 +1,5 @@
 // Итоги недели: шаги «Пришло» и «Ушло», черновик и предпросмотр.
-import { K, S, draft, events, go, saveDraft, setDraft, state, user } from './core.js';
+import { K, S, draft, events, go, gx, kid, saveDraft, setDraft, state, user } from './core.js';
 import { choice, dram, field, h, numInput } from './dom.js';
 import { SOURCE } from './labels.js';
 import { incomeSheet, spendSheet } from './money-sheets.js';
@@ -64,7 +64,7 @@ export function stepIncome(nav) {
       h('h2', {}, 'Фишки'),
       c.atMax ? h('p', { class: 'maxbadge' }, 'Максимум недели!') : null,
       h('p', { class: 'num' }, 'По записям: ' + all + (c.overflow ? ' (из них ' + c.overflow + ' сверх максимума)' : '')),
-      field('Сколько жетонов принёс Сергей', numInput('tokens', draft.tokens, 'Жетоны', v => { draft.tokens = v; saveDraft(); render(); }),
+      field('Сколько жетонов ' + gx('принёс ', 'принесла ') + kid(), numInput('tokens', draft.tokens, 'Жетоны', v => { draft.tokens = v; saveDraft(); render(); }),
         tokens > all ? 'Жетонов больше, чем записей. Оплачиваются только ' + all + '.' : tokens < all ? 'Жетонов меньше, чем записей. Платим по жетонам: потерянный не восполняется.' : 'Совпадает с записями.'),
       h('div', { class: 'kv big-kv' }, h('span', {}, paid + ' × ' + cfg.chipPrice), h('span', {}, dram(paid * cfg.chipPrice))),
       over ? h('div', { class: 'kv' }, h('span', {}, 'Сверх максимума: ' + over + ' × ' + (cfg.chipPrice / 2) + ' — сразу в банк'), h('span', {}, dram(overMoney))) : null),
@@ -89,15 +89,15 @@ export function stepSpend(nav) {
   return h('div', { class: 'stack' },
     h('section', { class: 'panel' },
       h('h2', {}, 'Кошелёк'),
-      field('Сколько денег у Сергея в кошельке сейчас', numInput('cnt-wallet', draft.count.wallet, 'Кошелёк', v => { draft.count.wallet = v; saveDraft(); render(); }),
-        'По записям должно быть ' + dram(exp.wallet) + ', если он ничего не тратил.'),
-      wSpent != null ? h('div', { class: 'kv big-kv' }, h('span', {}, wSpent >= 0 ? 'Потратил за неделю' : 'Больше, чем по записям'), h('span', {}, dram(Math.abs(wSpent)))) : null),
+      field('Сколько денег у ' + kid('gen') + ' в кошельке сейчас', numInput('cnt-wallet', draft.count.wallet, 'Кошелёк', v => { draft.count.wallet = v; saveDraft(); render(); }),
+        'По записям должно быть ' + dram(exp.wallet) + gx(', если он ничего не тратил.', ', если она ничего не тратила.')),
+      wSpent != null ? h('div', { class: 'kv big-kv' }, h('span', {}, wSpent >= 0 ? gx('Потратил', 'Потратила') + ' за неделю' : 'Больше, чем по записям'), h('span', {}, dram(Math.abs(wSpent)))) : null),
     h('section', { class: 'panel' },
       h('h2', {}, 'Копилка целей и конверт'),
       field('Сколько в копилке целей', numInput('cnt-goals', draft.count.goals, 'Копилка целей', v => { draft.count.goals = v; saveDraft(); render(); }), 'По записям: ' + dram(exp.goals) + '. Пусто — значит совпадает.'),
       goalsCount < exp.goals ? h('div', { class: 'warnbox' },
         h('p', {}, 'Не хватает ' + dram(exp.goals - goalsCount) + '.'),
-        choice('short', [['theft', 'Взял без спроса'], ['allowed', 'С нашего разрешения']], draft.goalsShortfall, v => { draft.goalsShortfall = v; saveDraft(); render(); }),
+        choice('short', [['theft', gx('Взял', 'Взяла') + ' без спроса'], ['allowed', 'С нашего разрешения']], draft.goalsShortfall, v => { draft.goalsShortfall = v; saveDraft(); render(); }),
         h('p', { class: 'small' }, draft.goalsShortfall === 'theft' ? 'Весь накопленный бонус за терпение сгорит.' : 'Бонус потеряют только самые новые монетки.')) : null,
       field('Сколько в конверте «Для других»', numInput('cnt-others', draft.count.others, 'Конверт', v => { draft.count.others = v; saveDraft(); render(); }), 'По записям: ' + dram(exp.others) + '. Разница — потрачено на подарки.')),
     h('section', { class: 'panel' },

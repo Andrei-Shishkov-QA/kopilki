@@ -59,6 +59,11 @@ export function updateBar() {
   return h('div', { class: 'chanbar upd', role: 'status' }, h('span', {}, 'Есть новая версия приложения.'), btn);
 }
 
+/** Точка на иконке приложения, когда пора подвести итоги недели (где браузер умеет). */
+export function setBadge(on) {
+  try { if (on) navigator.setAppBadge && navigator.setAppBadge(1).catch(() => {}); else navigator.clearAppBadge && navigator.clearAppBadge().catch(() => {}); } catch (e) { /* ignore */ }
+}
+
 /** Запуск: зарегистрировать sw.js своей версии сайта (основная / beta — у каждой свой). */
 export function startPwa() {
   if (!('serviceWorker' in navigator) || !window.isSecureContext) return;

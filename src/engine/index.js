@@ -8,3 +8,4 @@ export { applyEvent } from './events.js';
 export { replay, conservation } from './replay.js';
 export { canBuyNow, patienceForecast, weeksToSave, expectedCash, habitProgress } from './forecast.js';
 export { CLOCK_LIMIT_MS, clockSkew, offsetOf, usualOffset } from './clock.js';
+export { DEFAULT_FAMILY, nameForms, family, activePeople, personName, money } from './family.js';

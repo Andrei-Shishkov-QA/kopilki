@@ -1,17 +1,17 @@
-// Экран Сергея и калькулятор «Сколько копить?».
-import { K, go, state, user } from './core.js';
-import { dram, field, fmt, h, plural, setKids } from './dom.js';
+// Экран ребёнка и калькулятор «Сколько копить?».
+import { K, go, kid, state, user } from './core.js';
+import { cur, dram, field, fmt, h, plural, setKids } from './dom.js';
 import { jarsBlock } from './jars.js';
 import { goalsPanel } from './money.js';
 import { weekSum } from './queries.js';
 
-// ------------------------------------------------------------ экран Сергея
+// ------------------------------------------------------------ экран ребёнка
 export function kidView() {
   const chips = weekSum();
   const weekly = Math.floor(state.config.weeklyBase * state.config.proportion.goals / 100);
   const fc = K.patienceForecast(state, [0, 2, 4, 8], weekly);
   return h('main', { class: 'wrap kid' },
-    h('div', { class: 'top' }, h('h1', {}, 'Копилки Сергея'), h('button', { class: 'ghost', type: 'button', onclick: () => go('start') }, user ? 'Назад' : 'Для родителей')),
+    h('div', { class: 'top' }, h('h1', {}, 'Копилки ' + kid('gen')), h('button', { class: 'ghost', type: 'button', onclick: () => go('start') }, user ? 'Назад' : 'Для родителей')),
     jarsBlock(null, true),
     h('section', { class: 'panel' },
       h('h2', {}, 'Фишки на этой неделе'),
@@ -22,7 +22,7 @@ export function kidView() {
     saveCalc(),
     h('section', { class: 'panel' },
       h('h2', {}, 'А если подождать?'),
-      h('p', { class: 'small muted' }, 'Каждая монетка в копилке целей каждую неделю подрастает: папа добавит ' + state.config.bonus.perWeekPct + '% за неделю, но не больше ' + state.config.bonus.maxPct + '%. Если брать без спроса — всё сгорает.'),
+      h('p', { class: 'small muted' }, 'Каждая монетка в копилке целей каждую неделю подрастает: родители добавят ' + state.config.bonus.perWeekPct + '% за неделю, но не больше ' + state.config.bonus.maxPct + '%. Если брать без спроса — всё сгорает.'),
       h('div', { class: 'wait' }, fc.map(f => h('div', { class: 'wcol' },
         h('span', { class: 'small muted' }, f.weeks ? 'через ' + f.weeks + ' нед.' : 'сейчас'),
         h('b', { class: 'num' }, fmt(f.value)),
@@ -66,13 +66,13 @@ export function saveCalc() {
         h('div', { class: 'kv' }, h('span', {}, 'Уже в копилке целей'), h('span', {}, dram(have))),
         h('div', { class: 'kv' }, h('span', {}, 'Каждую неделю в цели'), h('span', {}, '+' + dram(toGoals))),
         r.weeks ? h('div', { class: 'kv' }, h('span', {}, 'Отложишь сам'), h('span', {}, dram(r.kidPays))) : null,
-        calc.bonus && r.bonus ? h('div', { class: 'kv' }, h('span', {}, 'Бонус папы за терпение'), h('span', { class: 'pend-ok' }, '+' + dram(r.bonus))) : null),
+        calc.bonus && r.bonus ? h('div', { class: 'kv' }, h('span', {}, 'Бонус родителей за терпение'), h('span', { class: 'pend-ok' }, '+' + dram(r.bonus))) : null),
       h('p', { class: 'small muted' }, 'В цели идёт ' + cfg.proportion.goals + '% от карманных' + (calc.chips ? ' и фишек' : '') + '.'));
   }
   price.addEventListener('input', draw); slider.addEventListener('input', draw);
   const sec = h('section', { class: 'panel calc' },
     h('h2', {}, 'Сколько копить?'),
-    field('Цена цели, ֏', price),
+    field('Цена цели, ' + cur(), price),
     h('div', { class: 'stack' },
       h('label', { class: 'field checkline' }, h('input', { type: 'checkbox', checked: true, disabled: true }), h('span', {}, 'Карманные: ' + dram(cfg.weeklyBase) + ' в неделю')),
       check('chips', 'И фишки'),

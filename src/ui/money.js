@@ -1,5 +1,5 @@
 // Вкладка «Деньги»: неделя, ожидающие записи, цели, остатки.
-import { K, add, draft, events, state, who } from './core.js';
+import { K, add, draft, events, kid, state, who } from './core.js';
 import { amountInput, dlabel, dram, field, fmt, h, readAmount, sheet, toast, when } from './dom.js';
 import { jarsBlock } from './jars.js';
 import { reasonSheet } from './journal.js';
@@ -72,14 +72,14 @@ export function goalsPanel(readonly) {
   const total = K.jarTotal(state.goals);
   let left = total;
   return h('section', { class: 'panel' },
-    h('div', { class: 'top' }, h('h2', {}, readonly ? 'Мои цели' : 'Цели Сергея'), readonly ? null : h('button', { type: 'button', class: 'small', onclick: goalsSheet }, 'Изменить')),
+    h('div', { class: 'top' }, h('h2', {}, readonly ? 'Мои цели' : 'Цели ' + kid('gen')), readonly ? null : h('button', { type: 'button', class: 'small', onclick: goalsSheet }, 'Изменить')),
     slots.length ? h('div', { class: 'stack' }, slots.map((s, i) => {
       const have = Math.max(0, Math.min(left, s.price || 0)); left -= have;
       const pct = s.price ? Math.round(100 * have / s.price) : 0;
       return h('div', { class: 'goal' },
         h('div', { class: 'top' }, h('b', {}, (i + 1) + '. ' + s.name), h('span', { class: 'num small' }, s.price ? fmt(have) + ' из ' + dram(s.price) : 'цена не задана')),
         h('div', { class: 'meter' }, h('div', { style: 'width:' + pct + '%;background:var(--goals)' })));
-    })) : h('p', { class: 'small muted' }, 'Пока «Будущая цель». Деньги копятся в копилке целей и ждут, когда Сергей выберет, на что копить.'));
+    })) : h('p', { class: 'small muted' }, 'Пока «Будущая цель». Деньги копятся в копилке целей и ждут, когда ' + kid() + ' выберет, на что копить.'));
 }
 
 export function goalsSheet() {

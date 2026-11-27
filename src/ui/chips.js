@@ -1,5 +1,5 @@
 // Окно «Фишки за сегодня»: обычные, дневные (солнышки) и бонусные.
-import { K, S, add, events, state } from './core.js';
+import { K, S, add, events, gx, kid, state } from './core.js';
 import { h, richText, setKids, sheet, toast } from './dom.js';
 import { noteEditor } from './habits.js';
 import { timesLabel } from './labels.js';
@@ -82,7 +82,7 @@ export function chipSheet() {
       const keepScroll = box.scrollTop;
       setKids(body,
         h('div', { class: 'top' }, h('h2', {}, 'Фишки за сегодня'), h('span', { class: 'small muted num' }, 'неделя: ' + c.payable + ' из ' + state.config.weeklyChipLimit)),
-        h('p', { class: 'small muted' }, 'Сергей начал сам, без напоминания? Нажмите на дело и подтвердите.'),
+        h('p', { class: 'small muted' }, kid() + gx(' начал сам', ' начала сама') + ', без напоминания? Нажмите на дело и подтвердите.'),
         habits.length ? h('div', { class: 'stack' },
           habits.some(hb => hb.mode !== 'day') ? h('p', { class: 'label' }, 'За каждый раз') : null,
           habits.filter(hb => hb.mode !== 'day').map(hb => row(hb.id, hb.name, timesLabel(hb), hb)),

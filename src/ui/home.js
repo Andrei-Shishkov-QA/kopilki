@@ -1,7 +1,7 @@
 // Главная и заметки.
 import { backupReminder } from './backup.js';
 import { chipSheet } from './chips.js';
-import { APP_VERSION, add, go, state, who } from './core.js';
+import { APP_VERSION, add, go, gx, kid, state, who } from './core.js';
 import { confirmBtn, h, sheet, toast, when } from './dom.js';
 import { jarsBlock } from './jars.js';
 import { withdrawSheet } from './money-sheets.js';
@@ -13,7 +13,7 @@ export function homeView() {
   const open = state.notes.filter(n => n.status === 'open').slice().reverse();
   return h('main', { class: 'wrap' },
     weekHero(c),
-    h('button', { class: 'act chip wide', type: 'button', onclick: chipSheet }, h('b', {}, 'Фишка'), h('span', {}, 'Сергей начал сам, без напоминания')),
+    h('button', { class: 'act chip wide', type: 'button', onclick: chipSheet }, h('b', {}, 'Фишка'), h('span', {}, kid() + gx(' начал сам', ' начала сама') + ', без напоминания')),
     sessionDue() ? h('button', { class: 'panel accent startcta', type: 'button', onclick: () => go('money') }, h('b', {}, 'Пора подвести итоги недели'), h('span', { class: 'small' }, 'Посчитать фишки, разложить деньги, начать новую неделю ›')) : null,
     backupReminder(),
     h('section', { class: 'panel' },
@@ -24,7 +24,7 @@ export function homeView() {
     h('section', { class: 'panel' }, h('h2', {}, 'Копилки сейчас'), jarsBlock()),
     h('div', { class: 'row' },
       h('button', { type: 'button', class: 'ghost', onclick: () => withdrawSheet() }, 'Заявка в банк'),
-      h('button', { type: 'button', class: 'ghost', onclick: () => go('kid') }, 'Экран Сергея')),
+      h('button', { type: 'button', class: 'ghost', onclick: () => go('kid') }, 'Экран ' + kid('gen'))),
     h('p', { class: 'small muted' }, 'Версия ' + APP_VERSION));
 }
 

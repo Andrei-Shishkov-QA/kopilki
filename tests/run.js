@@ -22,3 +22,4 @@ else console.log('✓ Все файлы не длиннее ' + MAX + ' стро
 
 await import('./engine.test.js');
 await import('./pwa.test.js');
+await import('./family.test.js');

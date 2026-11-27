@@ -1,9 +1,10 @@
 // Отрисовка: выбор экрана по адресу, верхняя панель, вкладки, вход.
 import { backupView } from './backup.js';
-import { PEOPLE, USER_KEY, app, applyPalette, currentPalette, go, isAdmin, lsPalette, route, setAdmin, setUser, status, store, user } from './core.js';
+import { USER_KEY, isPerson, kid, people, who, app, applyPalette, currentPalette, go, isAdmin, lsPalette, route, setAdmin, setUser, status, store, user } from './core.js';
 import { channelBar } from './channel.js';
 import { clockBar } from './clock.js';
-import { updateBar } from './pwa.js';
+import { setBadge, updateBar } from './pwa.js';
+import { sessionDue } from './queries.js';
 import { demoBar, helpSheet } from './docs.js';
 import { h, toast } from './dom.js';
 import { habitsView } from './habits.js';
@@ -24,8 +25,9 @@ export function render() {
   for (const bar of [updateBar(), channelBar(), clockBar()]) if (bar) app.append(bar);
   if (store.mode === 'connecting') return app.append(h('main', { class: 'wrap login' }, h('p', { class: 'muted' }, 'Подключаюсь…')));
   if (store.mode === 'login') return app.append(loginView());
+  if (store.mode === 'cloud' || store.demo) setBadge(!store.demo && sessionDue());
   if (r === 'kid') return app.append(kidView());
-  if (!user) return app.append(loginView());
+  if (!user || !isPerson(user)) return app.append(loginView());
   app.append(topBar(), tabs(r));
   if (r === 'money') app.append(moneyView());
   else if (r === 'settings') app.append(settingsView());
@@ -45,7 +47,7 @@ export function loginView() {
   const pass = h('input', { id: 'password', type: 'password', autocomplete: 'current-password', placeholder: 'Пароль', 'aria-label': 'Пароль' });
   const err = h('p', { class: 'small', style: 'color:var(--bad)', hidden: true });
   const fail = t => { err.textContent = t; err.hidden = false; };
-  const btns = Object.entries(PEOPLE).map(([id, name]) => h('button', { type: 'button', 'aria-pressed': 'false', onclick: e => {
+  const btns = people().map(({ id, name }) => h('button', { type: 'button', 'aria-pressed': 'false', onclick: e => {
     pick = id; btns.forEach(b => b.setAttribute('aria-pressed', 'false')); e.currentTarget.setAttribute('aria-pressed', 'true');
   } }, name));
   async function enter(e) {
@@ -64,21 +66,21 @@ export function loginView() {
   }
   const btn = h('button', { class: 'primary', type: 'submit' }, 'Войти');
   return h('form', { class: 'wrap login', onsubmit: enter },
-    h('div', { class: 'stack' }, h('p', { class: 'label' }, 'Копилки Сергея'), h('h1', {}, 'Кто записывает?')),
+    h('div', { class: 'stack' }, h('p', { class: 'label' }, 'Копилки ' + kid('gen')), h('h1', {}, 'Кто записывает?')),
     h('div', { class: 'who-pick' }, btns),
     needAccount ? h('div', { class: 'stack' }, email, pass) : null,
     err, btn,
-    needAccount ? h('p', { class: 'small muted' }, 'Почту и пароль семейного аккаунта нужно ввести один раз на каждом телефоне.') : h('button', { type: 'button', class: 'ghost', onclick: () => go('kid') }, 'Экран Сергея'),
-    h('p', { class: 'small muted' }, 'Выбор «папа / мама» нужен, чтобы в журнале было видно, кто сделал запись. Сменить — кнопка «Сменить» вверху.'));
+    needAccount ? h('p', { class: 'small muted' }, 'Почту и пароль семейного аккаунта нужно ввести один раз на каждом телефоне.') : h('button', { type: 'button', class: 'ghost', onclick: () => go('kid') }, 'Экран ' + kid('gen')),
+    h('p', { class: 'small muted' }, 'Выбор, кто записывает, нужен, чтобы в журнале было видно, кто сделал запись. Сменить — кнопка «Сменить» вверху.'));
 }
 
 export function topBar() {
   return h('div', { class: 'wrap', style: 'padding-bottom:0' },
     isAdmin() ? h('div', { class: 'adminbar' }, h('a', { href: '#settings', class: 'adminlink' }, 'Режим настройки ›'), h('button', { type: 'button', class: 'small', onclick: () => { setAdmin(false); render(); toast('Режим настройки выключен'); } }, 'Выключить')) : null,
     h('div', { class: 'top' },
-      h('div', { class: 'stack', style: 'gap:2px' }, h('div', { class: 'titlerow' }, h('h1', {}, 'Копилки Сергея'), h('button', { type: 'button', class: 'hint-i', 'aria-label': 'Как пользоваться', onclick: helpSheet }, 'i')), h('span', { class: 'pill ' + status.level, role: 'status' }, status.text)),
+      h('div', { class: 'stack', style: 'gap:2px' }, h('div', { class: 'titlerow' }, h('h1', {}, 'Копилки ' + kid('gen')), h('button', { type: 'button', class: 'hint-i', 'aria-label': 'Как пользоваться', onclick: helpSheet }, 'i')), h('span', { class: 'pill ' + status.level, role: 'status' }, status.text)),
       h('div', { class: 'who' },
-        h('span', { class: 'tag' }, PEOPLE[user]),
+        h('span', { class: 'tag' }, who(user)),
         h('button', { class: 'ghost small', type: 'button', onclick: () => { setUser(null); try { localStorage.removeItem(USER_KEY); } catch (e) { /* ignore */ } render(); } }, 'Сменить'))));
 }
 

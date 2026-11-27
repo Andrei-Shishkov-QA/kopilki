@@ -1,10 +1,10 @@
 // Тексты из базы («Как пользоваться», правила копилок) и демо-режим.
-import { add, go, saveDraft, setDraft, state, store, user, who } from './core.js';
+import { add, go, gx, kid, saveDraft, setDraft, state, store, user, who } from './core.js';
 import { confirmBtn, h, hintBtn, richText, setKids, sheet, toast, when } from './dom.js';
 
 // ------------------------------------------------------------ тексты из базы: «Как пользоваться», правила копилок
-export const DEFAULT_HELP = [
-  'Сергей сам начал дело: «Фишка» → нажать на дело → «Дать фишку» → дать жетон в руку.',
+export const defaultHelp = () => [
+  kid() + gx(' сам начал', ' сама начала') + ' дело: «Фишка» → нажать на дело → «Дать фишку» → дать жетон в руку.',
   'Дневная привычка (тапки): в окне фишек гасите солнышко за каждый прокол. Фишки за день начислятся сами на следующий день.',
   'Спор, идея, подарок, покупка: «+ Заметка». Всё решаем на итогах недели.',
   'Суббота или воскресенье: «Деньги» → «Подвести итоги недели»: пришло → ушло → раздать. Приложение скажет, что куда положить, и начнёт новую неделю.',
@@ -16,7 +16,7 @@ export const DEFAULT_HELP = [
 
 export function docText(key, def) { const d = state.docs && state.docs[key]; return d && d.text ? d.text : def; }
 
-export function helpSheet() { docSheet('help', 'Как пользоваться', DEFAULT_HELP); }
+export function helpSheet() { docSheet('help', 'Как пользоваться', defaultHelp()); }
 
 /** Окно с текстом и карандашом: правка хранится в базе (событие doc). Пустой текст = вернуть исходный. */
 export function docSheet(key, title, def, extraTop, startEdit) {

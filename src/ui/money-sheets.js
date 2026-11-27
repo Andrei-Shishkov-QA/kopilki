@@ -1,5 +1,5 @@
 // Окна денег: пришли, покупка, снять из банка, аванс.
-import { K, add, state } from './core.js';
+import { K, add, kid, state } from './core.js';
 import { amountInput, choice, confirmBtn, dram, field, h, readAmount, sheet, toast } from './dom.js';
 import { FROM, SOURCE } from './labels.js';
 import { pendingRequests } from './queries.js';
@@ -43,8 +43,8 @@ export function spendSheet() {
         const avail = K.jarTotal(state.goals) - q.pending;
         if (!a) info.replaceChildren(h('p', { class: 'small muted num' }, 'В копилке целей свободно ' + dram(avail) + '.'));
         else if (kind === 'goal') info.replaceChildren(h('p', { class: 'small num' + (q.ok ? '' : ' bad') },
-          q.ok ? 'Из копилки ' + dram(q.kidPays) + ', бонус папы ' + dram(q.bonus) + (q.needsTopUp ? ', доплата ' + dram(q.needsTopUp) : '') + '. Точный расчёт — в итогах недели.'
-            : 'Не хватает ' + dram(q.shortfall) + '. Папа может доплатить только до ' + dram(q.topUpMax) + '.'));
+          q.ok ? 'Из копилки ' + dram(q.kidPays) + ', бонус родителей ' + dram(q.bonus) + (q.needsTopUp ? ', доплата ' + dram(q.needsTopUp) : '') + '. Точный расчёт — в итогах недели.'
+            : 'Не хватает ' + dram(q.shortfall) + '. Родители могут доплатить только до ' + dram(q.topUpMax) + '.'));
         else info.replaceChildren(h('p', { class: 'small num' + (a > avail ? ' bad' : '') }, a > avail ? 'В копилке целей только ' + dram(avail) + '.' : 'Без бонуса. Самые новые монетки потеряют свой «возраст».'));
       } else {
         const jar = state[from];
@@ -60,7 +60,7 @@ export function spendSheet() {
     kindBox.classList.add('stack');
     amt.addEventListener('input', update);
     box.append(h('h2', {}, 'Покупка за его деньги'),
-      h('p', { class: 'small muted' }, 'Вы заплатили сами. При подведении итогов Сергей отдаст вам эти деньги из копилки.'),
+      h('p', { class: 'small muted' }, 'Вы заплатили сами. При подведении итогов ' + kid() + ' отдаст вам эти деньги из копилки.'),
       choice('from', [['goals', 'Цели'], ['others', 'Для других'], ['wallet', 'Кошелёк']], from, v => { from = v; update(); }),
       kindBox, field('Сумма', amt), field('Что купили', what), info,
       h('div', { class: 'row' }, h('button', { type: 'button', onclick: close }, 'Отмена'),
@@ -118,7 +118,7 @@ export function advanceSheet() {
   sheet((box, close) => {
     const v = Math.round(state.config.weeklyBase * K.weekProportion(state.config, false).wallet / 100);
     box.append(h('h2', {}, 'Аванс в понедельник'),
-      h('p', {}, 'Если итоги в выходные не подвели из-за родителей, утром в понедельник Сергей получает кошелёк авансом. При подведении итогов всё пересчитается, лишнего не выдастся.'),
+      h('p', {}, 'Если итоги в выходные не подвели из-за родителей, утром в понедельник ' + kid() + ' получает кошелёк авансом. При подведении итогов всё пересчитается, лишнего не выдастся.'),
       state.week.advances.length ? h('p', { class: 'small bad' }, 'На этой неделе аванс уже выдан: ' + dram(state.week.advances.reduce((n, a) => n + a.amount, 0)) + '.') : null,
       h('p', { class: 'small muted' }, 'Нажмите кнопку два раза: второй раз — подтверждение. Отменить можно в «Уйдут деньги».'),
       h('p', { class: 'num' }, 'Сумма: ' + dram(v)),
