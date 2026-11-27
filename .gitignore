@@ -5,3 +5,4 @@ node_modules/
 kidbank-*.json
 kidbank-*.csv
 backups/
+_site/
