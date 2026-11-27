@@ -74,12 +74,14 @@ export function createStore() {
       if (!fromCache) { evDone.v = true; mark(); lastError = ''; }
       saveCache(); emit();
     }, onErr));
-    unsub.push(onSnapshot(collection(db, 'arch'), snap => {
+    // includeMetadataChanges обязательно: архив пока пустой, и без него Firestore не сообщает
+    // «сервер подтвердил» (меняются только метаданные) — статус навсегда застревал на «Загружаю…».
+    unsub.push(onSnapshot(collection(db, 'arch'), { includeMetadataChanges: true }, snap => {
       archive = new Map();
       for (const d of snap.docs) for (const e of (d.data().events || [])) archive.set(e.id, e);
       if (!snap.metadata.fromCache) { arDone.v = true; mark(); }
       saveCache(); emit();
-    }, onErr));
+    }, err => { console.warn('архив недоступен:', err && err.code); arDone.v = true; mark(); emit(); }));
   }
   function stop() { for (const u of unsub) try { u(); } catch (e) { /* ignore */ } unsub = []; }
 
