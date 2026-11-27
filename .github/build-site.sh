@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Собирает _site: основная (main), beta и все выпуски (теги v*). Запускается в GitHub Actions.
+# Собирает _site: основная (main), beta и все выпуски (ветки release/X.Y.Z). Запускается в GitHub Actions.
 set -euo pipefail
 rm -rf _site && mkdir -p _site
 copy() {  # copy <ref> <папка>
@@ -12,11 +12,12 @@ copy origin/main _site
 if git rev-parse --verify -q origin/beta >/dev/null; then copy origin/beta _site/beta; fi
 echo '[' > _site/versions.json
 first=1
-for t in $(git tag -l 'v*' --sort=-v:refname); do
-  copy "$t" "_site/v/${t#v}"
-  d=$(git log -1 --format=%cs "$t")
+for r in $(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/release/' | sort -t/ -k3 -V -r); do
+  v=${r#origin/release/}
+  copy "$r" "_site/v/$v"
+  d=$(git log -1 --format=%cs "$r")
   [ $first -eq 1 ] || echo ',' >> _site/versions.json
-  printf '{"version":"%s","date":"%s"}' "${t#v}" "$d" >> _site/versions.json
+  printf '{"version":"%s","date":"%s"}' "$v" "$d" >> _site/versions.json
   first=0
 done
 echo ']' >> _site/versions.json

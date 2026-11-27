@@ -1,13 +1,12 @@
 # Выкладка сайта. Собирает сразу все версии:
 #   ветка main  → …/kopilki/          (основная, для всех)
 #   ветка beta  → …/kopilki/beta/     (новое, для владельца)
-#   теги vX.Y.Z → …/kopilki/v/X.Y.Z/  (каждый выпуск навсегда, для отката)
+#   ветки release/X.Y.Z → …/kopilki/v/X.Y.Z/  (каждый выпуск навсегда, для отката)
 # и файл versions.json со списком выпусков.
 name: Тесты и публикация
 on:
   push:
-    branches: [main, beta]
-    tags: ['v*']
+    branches: [main, beta, 'release/**']
   workflow_dispatch:
 permissions:
   contents: read
