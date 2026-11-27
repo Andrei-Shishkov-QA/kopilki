@@ -31,6 +31,9 @@ export function choose(target) {
   location.href = where().root + (target ? target + '/' : '') + location.hash;
 }
 
+/** Открыто с иконки на экране (а не в браузере). Такое приложение живёт только на своём адресе. */
+export const installed = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+
 export function channelName(c) { return !c ? 'основная' : c === 'beta' ? 'бета' : 'версия ' + c.slice(2); }
 
 /** Плашки сверху: старая версия, бета, записи из более новой версии. */
@@ -41,12 +44,16 @@ export function channelBar() {
   const old = w.channel.startsWith('v/');
   return h('div', { class: 'chanbar' + (old || unknown ? ' warn' : '') },
     h('span', {}, unknown ? 'В журнале есть записи из более новой версии — часть расчётов может отличаться.' : old ? 'Вы на старой версии ' + w.channel.slice(2) + '.' : 'Бета-версия ' + VERSION + ' — для проверки нового.'),
-    w.channel ? h('button', { type: 'button', class: 'small', onclick: () => choose('') }, 'На основную') : null);
+    w.channel && !installed() ? h('button', { type: 'button', class: 'small', onclick: () => choose('') }, 'На основную') : null);
 }
 
 /** Панель «Версия» во вкладке «Ещё». */
 export function versionPanel() {
   const w = where();
+  if (installed()) return h('section', { class: 'panel' },
+    h('h2', {}, 'Версия'),
+    h('p', { class: 'small' }, 'Сейчас: ' + VERSION + ' (' + channelName(w.channel) + '). Это приложение с иконки — оно всегда открывает эту версию.'),
+    h('p', { class: 'small muted' }, w.channel ? 'Основная версия — обычный адрес сайта в браузере (или своя иконка, если её добавить оттуда).' : 'Бета и прошлые версии открываются в браузере: там «Ещё → Версия».'));
   const list = h('div', { class: 'stack' }, h('p', { class: 'small muted' }, 'Загружаю список версий…'));
   const btn = (target, title, sub) => h('button', { type: 'button', class: 'verbtn', 'aria-pressed': String(w.channel === target), onclick: () => { if (w.channel !== target) choose(target); } },
     h('b', {}, title), sub ? h('span', { class: 'small muted' }, sub) : null);
