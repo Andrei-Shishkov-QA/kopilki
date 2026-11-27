@@ -1,5 +1,6 @@
 // Вкладка «Ещё»: цвета и вид, демо, резервные копии.
 import { APP_VERSION, PALETTES, S, add, applyPalette, currentPalette, events, go, state, store, user, who } from './core.js';
+import { versionPanel } from './channel.js';
 import { demoPanel } from './docs.js';
 import { confirmBtn, h, sheet, toast } from './dom.js';
 import { jarStylePicker } from './jars.js';
@@ -24,10 +25,12 @@ export async function save(filename, data) {
     try { await dl.save({ filename, data }); toast('Файл сохранён: ' + filename); return true; }
     catch (e) { if (e && e.code === 'declined') toast('Сохранение отменено'); else toast('Не получилось сохранить (' + (e && e.code) + ')'); return false; }
   }
-  // аварийный режим из файла: обычное скачивание браузера
+  // обычное скачивание браузера
   const a = h('a', { href: URL.createObjectURL(new Blob([data], { type: 'application/octet-stream' })), download: filename });
   document.body.append(a); a.click(); a.remove();
   toast('Файл сохранён: ' + filename);
+  // отметка для напоминания «давно не сохраняли копию» (видна на всех телефонах)
+  if (/\.json$/.test(filename) && !store.demo) add('backup', { file: filename });
   return true;
 }
 
@@ -54,11 +57,24 @@ export function importSheet(file) {
   reader.readAsText(file);
 }
 
+/** Плашка на главной: копию не сохраняли больше 7 дней. */
+export function backupReminder() {
+  if (store.demo || events.length < 15) return null;
+  const last = state.lastBackup && state.lastBackup.at;
+  const days = last ? Math.floor((Date.now() - new Date(last)) / 864e5) : null;
+  if (days != null && days < 7) return null;
+  return h('section', { class: 'panel remind' },
+    h('div', { class: 'top' }, h('b', {}, days == null ? 'Копию данных ещё не сохраняли' : 'Копию не сохраняли ' + days + ' дн.'),
+      h('button', { type: 'button', class: 'small primary', onclick: () => save('kidbank-' + stamp() + '.json', backupJson()) }, 'Сохранить')),
+    h('p', { class: 'small muted' }, 'Файл со всем журналом. Храните его на компьютере, например в папке kopilki-backups.'));
+}
+
 export function backupView() {
   const file = h('input', { id: 'import-file', type: 'file', accept: '.json,application/json', hidden: true, onchange: e => { const f = e.target.files[0]; if (f) importSheet(f); e.target.value = ''; } });
   const current = currentPalette();
   return h('main', { class: 'wrap' },
     h('div', { class: 'grid2' }, h('button', { type: 'button', onclick: () => go('rules') }, 'Правила системы'), h('button', { type: 'button', onclick: () => go('kid') }, 'Экран Сергея')),
+    versionPanel(),
     demoPanel(),
     h('section', { class: 'panel' },
       h('h2', {}, 'Цвета и вид'),

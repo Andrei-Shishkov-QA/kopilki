@@ -136,6 +136,8 @@ export function applyEvent(state, e) {
     case 'doc': state.docs[e.key] = { text: e.text, at: e.at, by: e.by }; break;
     case 'forbidden': state.forbidden = (e.items || []).slice(); break;
     case 'session': processSession(state, e); break;
-    default: state.warnings.push('Неизвестное событие: ' + e.type);
+    case 'backup': state.lastBackup = { at: e.at, by: e.by }; break;
+    // запись из более новой версии: пропускаем, но помним — интерфейс покажет плашку
+    default: (state.unknownTypes = state.unknownTypes || []).includes(e.type) || state.unknownTypes.push(e.type);
   }
 }

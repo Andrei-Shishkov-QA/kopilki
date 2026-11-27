@@ -28,6 +28,8 @@ export function initialState(config) {
     sessions: [],                                   // отчёты сессий
     docs: {},                                       // тексты: «Как пользоваться», правила копилок
     warnings: [],
+    unknownTypes: [],                               // виды записей из более новой версии
+    lastBackup: null,                               // когда последний раз сохраняли копию
   };
 }
 

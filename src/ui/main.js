@@ -2,6 +2,9 @@
 import { PALETTES, applyPalette, lsPalette, recompute, setEvents, setStatus, store } from './core.js';
 import { unlockBody } from './dom.js';
 import { render } from './render.js';
+import { redirectIfPinned } from './channel.js';
+
+if (redirectIfPinned()) throw new Error('переход на выбранную версию');   // дальше не запускаемся
 
 applyPalette(PALETTES.some(x => x[0] === lsPalette()) ? lsPalette() : 'red');
 

@@ -110,3 +110,13 @@ html.demo body { box-shadow: inset 0 0 0 4px #ffd400; }
 .calc .stepline b { font-family: var(--display); font-size: 18px; }
 .bline.over .kv b, .bline.over > p.small:not(.muted) { color: var(--warn); }
 .bline.over .meter > div { background: var(--warn); }
+
+/* версии и копии (1.1) */
+.chanbar { display: flex; align-items: center; gap: 10px; padding: 8px max(12px, env(safe-area-inset-right, 0px)) 8px max(12px, env(safe-area-inset-left, 0px)); background: var(--tint); font-size: 13px; border-bottom: 1px solid var(--line); }
+.chanbar.warn { background: #fff3cd; color: #5c4400; }
+.chanbar span { flex: 1; }
+.chanbar button { min-height: 34px; padding: 4px 12px; }
+.verbtn { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+.verbtn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.panel.remind { border-color: var(--warn); }
+.panel.remind .top button { min-height: 36px; }

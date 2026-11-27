@@ -1,6 +1,7 @@
 // Отрисовка: выбор экрана по адресу, верхняя панель, вкладки, вход.
 import { backupView } from './backup.js';
 import { PEOPLE, USER_KEY, app, applyPalette, currentPalette, go, isAdmin, lsPalette, route, setAdmin, setUser, status, store, user } from './core.js';
+import { channelBar } from './channel.js';
 import { demoBar, helpSheet } from './docs.js';
 import { h, toast } from './dom.js';
 import { habitsView } from './habits.js';
@@ -18,6 +19,7 @@ export function render() {
   app.replaceChildren();
   document.documentElement.classList.toggle('demo', store.demo);
   if (store.demo) app.append(demoBar());
+  { const cb = channelBar(); if (cb) app.append(cb); }
   if (store.mode === 'connecting') return app.append(h('main', { class: 'wrap login' }, h('p', { class: 'muted' }, 'Подключаюсь…')));
   if (store.mode === 'login') return app.append(loginView());
   if (r === 'kid') return app.append(kidView());

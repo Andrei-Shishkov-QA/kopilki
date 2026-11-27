@@ -1,4 +1,5 @@
 // Главная и заметки.
+import { backupReminder } from './backup.js';
 import { chipSheet } from './chips.js';
 import { APP_VERSION, add, go, state, who } from './core.js';
 import { confirmBtn, h, sheet, toast, when } from './dom.js';
@@ -14,6 +15,7 @@ export function homeView() {
     weekHero(c),
     h('button', { class: 'act chip wide', type: 'button', onclick: chipSheet }, h('b', {}, 'Фишка'), h('span', {}, 'Сергей начал сам, без напоминания')),
     sessionDue() ? h('button', { class: 'panel accent startcta', type: 'button', onclick: () => go('money') }, h('b', {}, 'Пора подвести итоги недели'), h('span', { class: 'small' }, 'Посчитать фишки, разложить деньги, начать новую неделю ›')) : null,
+    backupReminder(),
     h('section', { class: 'panel' },
       h('div', { class: 'top' }, h('h2', {}, 'Заметки к итогам недели'), h('button', { type: 'button', class: 'small', onclick: () => noteSheet() }, '+ Заметка')),
       open.length ? h('div', { class: 'list' }, open.slice(0, 5).map(n => h('div', { class: 'item tap', onclick: () => noteSheet(n) }, h('div', { class: 'text' }, n.text), h('span', { class: 'small muted' }, '✎'), h('div', { class: 'meta' }, who(n.by) + ' · ' + when(n.at)))))

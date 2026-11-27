@@ -8,7 +8,7 @@ export { K, S };
 
 export const USER_KEY = 'kidbank.user';
 
-export const APP_VERSION = '1.0';
+export { VERSION as APP_VERSION } from '../version.js';
 
 export const PEOPLE = { papa: 'Папа', mama: 'Мама' };
 

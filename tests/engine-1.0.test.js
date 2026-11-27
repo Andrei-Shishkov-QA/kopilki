@@ -49,4 +49,14 @@ export default ({ test, ev, day, sat, after, setup, session, run, K, assert }) =
     assert.strictEqual(K.weeksToSave(s, 100, 0, false).weeks, 0);
     assert.strictEqual(K.weeksToSave(s, 5000, 0, false).weeks, null);
   });
+  test('Записи из новой версии пропускаются и запоминаются', () => {
+    const s = run([setup(), ev('future_thing', after(1, 0, '12:00'), { x: 1 }), session(1)]);
+    assert.deepStrictEqual(s.unknownTypes, ['future_thing']);
+    assert.strictEqual(s.sessions.length, 1);
+  });
+  test('Отметка о резервной копии', () => {
+    const s = run([setup(), ev('backup', after(1, 0, '12:00'), {})]);
+    assert.ok(s.lastBackup && s.lastBackup.at);
+    assert.deepStrictEqual(s.unknownTypes, []);
+  });
 };
